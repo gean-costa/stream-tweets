@@ -4,17 +4,17 @@ from pymongo import MongoClient
 
 
 # conexão com o mongodb.
-# URL_CONNECTION = 'mongodb://localhost:27017/'
+URL_CONNECTION = 'mongodb://localhost:27017/'
 client = MongoClient(URL_CONNECTION)
 
 # database
-db = client['DATABASE_NAME']
+db = client['IWD2023']
 
 # collection
-collection = db['COLLECTION_NAME']
+collection = db['tweets']
 
 
-class StreamListener(tweepy.StreamListener):
+class IWDStreamer(tweepy.Stream):
 
     def on_connect(self):
         # ao conectar
@@ -46,21 +46,12 @@ class StreamListener(tweepy.StreamListener):
 with open('tokens.json', 'r') as file:
     tokens = json.load(file)
 
-# fazendo a autenticação OAuth
-auth = tweepy.OAuthHandler(
+streamer = IWDStreamer(
     consumer_key=tokens['api_key'],
-    consumer_secret=tokens['api_secret_key']
+    consumer_secret=tokens['api_secret_key'],
+    access_token=tokens['access_token'],
+    access_token_secret=tokens['access_token_secret']
 )
-auth.set_access_token(
-    key=tokens['access_token'],
-    secret=tokens['access_token_secret']
-)
-
-# instanciando a classe que foi criada para gerenciar a conexão
-listener = StreamListener(api=tweepy.API(wait_on_rate_limit=True))
-
-# criando stream
-streamer = tweepy.Stream(auth=auth, listener=listener)
 
 # lendo os termos de busca 
 with open('queries.txt', 'r') as file:
